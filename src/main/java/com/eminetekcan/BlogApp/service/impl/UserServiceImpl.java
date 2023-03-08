@@ -6,6 +6,8 @@ import com.eminetekcan.BlogApp.exception.ResourceNotFoundException;
 import com.eminetekcan.BlogApp.repository.UserRepository;
 import com.eminetekcan.BlogApp.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +18,9 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Override
     public UserDto createUser(UserDto userDto) {
@@ -58,21 +63,12 @@ public class UserServiceImpl implements UserService {
     }
 
     private User dtoToUser(UserDto userDto){
-        return User.builder()
-                .name(userDto.getName())
-                .about(userDto.getAbout())
-                .email(userDto.getEmail())
-                .password(userDto.getPassword())
-                .build();
+        User user=modelMapper.map(userDto,User.class);
+        return user;
     }
 
     private UserDto userToDto(User user){
-        return UserDto.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .email(user.getEmail())
-                .about(user.getAbout())
-                .password(user.getPassword())
-                .build();
+        UserDto userDto=modelMapper.map(user,UserDto.class);
+        return userDto;
     }
 }
