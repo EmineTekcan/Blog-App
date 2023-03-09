@@ -5,6 +5,7 @@ import com.eminetekcan.BlogApp.entity.Post;
 import com.eminetekcan.BlogApp.entity.User;
 import com.eminetekcan.BlogApp.exception.ResourceNotFoundException;
 import com.eminetekcan.BlogApp.payload.PostDto;
+import com.eminetekcan.BlogApp.payload.PostResponse;
 import com.eminetekcan.BlogApp.repository.CategoryRepository;
 import com.eminetekcan.BlogApp.repository.PostRepository;
 import com.eminetekcan.BlogApp.repository.UserRepository;
@@ -12,8 +13,13 @@ import com.eminetekcan.BlogApp.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -71,9 +77,23 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDto> getAllPost() {
-        List<Post> posts=postRepository.findAll();
-        return posts.stream().map(post -> modelMapper.map(post,PostDto.class)).collect(Collectors.toList());
+    public PostResponse getAllPost(Integer pageNumber, Integer pageSize, String sortBy, String sortDir) {
+
+        Sort sort=(sortDir.equalsIgnoreCase("asc")) ? Sort.by(sortBy).ascending() :Sort.by(sortBy).descending();
+
+        Pageable pageable= PageRequest.of(pageNumber,pageSize,sort);
+        Page<Post> page=postRepository.findAll(pageable);
+        List<Post> posts=page.getContent();
+        List<PostDto> postDtos=posts.stream().map(post -> modelMapper.map(post,PostDto.class)).collect(Collectors.toList());
+
+        return PostResponse.builder()
+                .postDtos(postDtos)
+                .pageSize(page.getSize())
+                .pageNumber(page.getNumber())
+                .totalPage(page.getTotalPages())
+                .totalElement(page.getTotalPages())
+                .lastPage(page.isLast())
+                .build();
     }
 
     @Override
