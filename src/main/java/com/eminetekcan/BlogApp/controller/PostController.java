@@ -1,5 +1,6 @@
 package com.eminetekcan.BlogApp.controller;
 
+import com.eminetekcan.BlogApp.config.AppConstants;
 import com.eminetekcan.BlogApp.entity.Post;
 import com.eminetekcan.BlogApp.payload.ApiResponse;
 import com.eminetekcan.BlogApp.payload.PostDto;
@@ -30,10 +31,10 @@ public class PostController {
 
     @GetMapping("/posts")
     public ResponseEntity<PostResponse> getAllPosts(
-            @RequestParam(required = false, defaultValue = "0", value = "pageNumber") Integer pageNumber,
-            @RequestParam(required = false, defaultValue = "5",value = "pageSize") Integer pageSize,
-            @RequestParam(required = false, defaultValue = "postId",value = "sortBy") String sortBy,
-            @RequestParam(required = false, defaultValue = "asc", value = "sortDir") String sortDir
+            @RequestParam(required = false, defaultValue = AppConstants.PAGE_NUMBER, value = "pageNumber") Integer pageNumber,
+            @RequestParam(required = false, defaultValue = AppConstants.PAGE_SIZE ,value = "pageSize") Integer pageSize,
+            @RequestParam(required = false, defaultValue = AppConstants.SORT_BY ,value = "sortBy") String sortBy,
+            @RequestParam(required = false, defaultValue = AppConstants.SORT_DIR , value = "sortDir") String sortDir
     ){
         return new ResponseEntity<>(postService.getAllPost(pageNumber, pageSize,sortBy,sortDir),HttpStatus.OK);
     }
@@ -62,5 +63,10 @@ public class PostController {
     public ResponseEntity<?> deletePost(@PathVariable Integer postId){
         postService.deletePost(postId);
         return new ResponseEntity<>(new ApiResponse("Post successfully deleted",true),HttpStatus.OK);
+    }
+
+    @GetMapping("/posts/search/{keyword}")
+    public ResponseEntity<List<PostDto>> searchPostByTitle(@PathVariable String keyword){
+        return new ResponseEntity<>(postService.searchPosts(keyword),HttpStatus.OK);
     }
 }
