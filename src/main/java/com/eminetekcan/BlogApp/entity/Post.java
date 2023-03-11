@@ -7,6 +7,9 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -36,4 +39,7 @@ public class Post {
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private User user;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Comment> comments=new HashSet<>();
 }
